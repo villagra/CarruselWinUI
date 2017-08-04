@@ -102,6 +102,7 @@
     <Compile Include="Controls\CarruselItemTemplate.xaml.cs">
       <DependentUpon>CarruselItemTemplate.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\CircularList.cs" />
     <Compile Include="Controls\CompositionImage.cs" />
     <Compile Include="Controls\CompositionShadow.xaml.cs">
       <DependentUpon>CompositionShadow.xaml</DependentUpon>
@@ -118,20 +119,15 @@
     <None Include="Carrusel_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\Tmp\1.jpg" />
-    <Content Include="Assets\Tmp\10.jpg" />
-    <Content Include="Assets\Tmp\11.jpg" />
-    <Content Include="Assets\Tmp\12.jpg" />
-    <Content Include="Assets\Tmp\13.jpg" />
-    <Content Include="Assets\Tmp\14.jpg" />
-    <Content Include="Assets\Tmp\2.jpg" />
-    <Content Include="Assets\Tmp\3.jpg" />
-    <Content Include="Assets\Tmp\4.jpg" />
-    <Content Include="Assets\Tmp\5.jpg" />
-    <Content Include="Assets\Tmp\6.jpg" />
-    <Content Include="Assets\Tmp\7.jpg" />
-    <Content Include="Assets\Tmp\8.jpg" />
-    <Content Include="Assets\Tmp\9.jpg" />
+    <Content Include="Assets\Tmp\0.png" />
+    <Content Include="Assets\Tmp\1.png" />
+    <Content Include="Assets\Tmp\2.png" />
+    <Content Include="Assets\Tmp\3.png" />
+    <Content Include="Assets\Tmp\4.png" />
+    <Content Include="Assets\Tmp\5.png" />
+    <Content Include="Assets\Tmp\6.png" />
+    <Content Include="Assets\Tmp\7.png" />
+    <Content Include="Assets\Tmp\8.png" />
     <Content Include="Assets\Tmp\c1.jpg" />
     <Content Include="Assets\Tmp\ES_veo.png" />
     <Content Include="Assets\Tmp\h1.png" />
