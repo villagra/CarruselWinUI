@@ -51,18 +51,13 @@ namespace Carrusel.Controls
         private void BttnRight_Tapped(object sender, TappedRoutedEventArgs e)
         {
             e.Handled = true;
-            //if (!idle) return;
-
-            _tracker.TryUpdatePositionWithAdditionalVelocity(new Vector3(2000f, 0f, 0f));
+            _tracker.TryUpdatePositionWithAdditionalVelocity(new Vector3(1500f, 0f, 0f));
         }
 
         private void BttnLeft_Tapped(object sender, TappedRoutedEventArgs e)
         {
             e.Handled = true;
-            //if (!idle) return;
-            //_tracker.TryUpdatePositionBy(new Vector3(-330, 0, 0));
-
-            var value = _tracker.TryUpdatePositionWithAdditionalVelocity(new Vector3(-2000f, 0f, 0f));
+            var value = _tracker.TryUpdatePositionWithAdditionalVelocity(new Vector3(-1500f, 0f, 0f));
         }
 
         private void Carrusel_Loaded(object sender, RoutedEventArgs e)
@@ -227,18 +222,13 @@ namespace Carrusel.Controls
             return item;
         }
 
-        bool idle = true;
-
         #region IInteractionTrackerOwner
         public void CustomAnimationStateEntered(InteractionTracker sender, InteractionTrackerCustomAnimationStateEnteredArgs args)
         {
-
         }
 
         public void IdleStateEntered(InteractionTracker sender, InteractionTrackerIdleStateEnteredArgs args)
         {
-            Debug.WriteLine("idle: ");
-            idle = true;
         }
 
         public void InertiaStateEntered(InteractionTracker sender, InteractionTrackerInertiaStateEnteredArgs args)
@@ -258,7 +248,6 @@ namespace Carrusel.Controls
 
         public void ValuesChanged(InteractionTracker sender, InteractionTrackerValuesChangedArgs args)
         {
-            idle = false;
             Debug.WriteLine("X position: " + args.Position.X);
         }
         #endregion
