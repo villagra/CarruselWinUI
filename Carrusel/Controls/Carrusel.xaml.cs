@@ -142,43 +142,26 @@ namespace Carrusel.Controls
             };
         }
 
-        private async void BttnLeft_Tapped(object sender, TappedRoutedEventArgs e)
+        private void BttnLeft_Tapped(object sender, TappedRoutedEventArgs e)
         {
             e.Handled = true;
-            var itemMoved = itemsRendered.MoveLeft();
+            MoveLeft();
 
             var animation = _compositor.CreateVector3KeyFrameAnimation();
             animation.InsertKeyFrame(1, new Vector3(itemsRendered.SelectedIndex * _itemWidth, 0, 0));
             animation.Duration = TimeSpan.FromMilliseconds(333);            
-            _tracker.TryUpdatePositionWithAnimation(animation);
-            
-            var template = itemMoved.Item2;
-            var newIndex = itemMoved.Item1;
-
-            await Task.Delay(333);
-            template.GetVisual().Offset = new System.Numerics.Vector3((float)right.Width * newIndex, 0, 0);
-            ConfigureTemplateAnimations();
-            ConfigureMinMax();
+            _tracker.TryUpdatePositionWithAnimation(animation);            
         }
 
-        private async void BttnRight_Tapped(object sender, TappedRoutedEventArgs e)
+        private void BttnRight_Tapped(object sender, TappedRoutedEventArgs e)
         {
             e.Handled = true;
-            var itemMoved = itemsRendered.MoveRight();
+            MoveRight();
 
             var animation = _compositor.CreateVector3KeyFrameAnimation();
             animation.InsertKeyFrame(1, new Vector3(itemsRendered.SelectedIndex * _itemWidth, 0, 0));
             animation.Duration = TimeSpan.FromMilliseconds(333);
             _tracker.TryUpdatePositionWithAnimation(animation);            
-            
-            var template = itemMoved.Item2;
-            var newIndex = itemMoved.Item1;
-
-            await Task.Delay(250);
-
-            template.GetVisual().Offset = new System.Numerics.Vector3((float)right.Width * newIndex, 0, 0);
-            ConfigureTemplateAnimations();
-            ConfigureMinMax();
         }
 
         private void MoveRight()
@@ -280,13 +263,10 @@ namespace Carrusel.Controls
                 template.GetVisual().StopAnimation("Scale");
 
                 template.GetVisual().StartAnimation("offset.x", _props.GetReference().GetScalarProperty("position") + itemRendered.Item1 * _itemWidth);
-                //template.GetVisual().StartAnimation("Scale", EF.Vector3(1, 1, 1) * EF.Lerp(1.2f, 1, propSetProgress));
 
                 float positionCenter = (itemRendered.Item1 * _itemWidth);
                 float position = (itemRendered.Item1 * _itemWidth) - _itemWidth / 2;
                 float positionEnd = (itemRendered.Item1 * _itemWidth) + _itemWidth/2;
-
-                //Debug.WriteLine($"{itemRendered.Item1} position: {position} positionend: {positionEnd}");
 
                 template.GetVisual()
                     .StartAnimation("Scale",
@@ -300,31 +280,12 @@ namespace Carrusel.Controls
                         , EF.Lerp(1, 0, EF.Abs(positionCenter - trackerNode.Position.X) / (_itemWidth / 2))
                         , 0));
 
-                //template.GetVisual().StartAnimation("Scale", EF.Vector3(1, 1, 1) * EF.Lerp(1.2f, 1, EF.Clamp(EF.Abs(trackerNode.Position.X), EF.Abs(position), EF.Abs(positionEnd))/_itemWidth/2));
-                //template.GetVisual().StartAnimation("Scale", EF.Vector3(1, 1, 1) *  EF.Conditional(EF.Abs(trackerNode.Position.X) > EF.Abs(position) & EF.Abs(trackerNode.Position.X) < EF.Abs(positionEnd), 1.2f ,1));
-
-                /*
-                var _expression = _compositor.CreateExpressionAnimation("trackerNode.Position.X > position ? 2 : 1");
-                _expression.SetReferenceParameter("trackerNode", _tracker);
-                _expression.SetScalarParameter("position", 0);
-                template.GetVisual().StartAnimation("Scale", _expression);
-                */
-                /*
-                var _expression = _compositor.CreateExpressionAnimation("(ScrollManipulation.Translation.X > -StartPositionInGuide) ? 8 : -(ScrollManipulation.Translation.X + StartPositionInGuide - 8)");
-                _expression.SetReferenceParameter("ScrollManipulation", _scrollProperties);
-                _expression.SetScalarParameter("StartPositionInGuide", (float)_startPositionInGuide);
-                _channelsVisual.StartAnimation("Offset.X", _expression);
-                */
-            }            
-
-            /*
-            var propSetProgress = _props.GetReference().GetScalarProperty("progress");
-            center.GetVisual().StartAnimation("Scale", EF.Vector3(1, 1, 1) * EF.Lerp(1.2f, 1, propSetProgress));
-
-            var propSetProgressSigned = _props.GetReference().GetScalarProperty("progressSigned");
-            right.GetVisual().StartAnimation("Scale", EF.Vector3(1, 1, 1) * EF.Lerp(1, 1.2f, propSetProgressSigned));
-            left.GetVisual().StartAnimation("Scale", EF.Vector3(1, 1, 1) * EF.Lerp(1, 1.2f, _props.GetReference().GetScalarProperty("progressNeg")));
-            */
+                template.OverlayPanel
+                    .StartAnimation("opacity",
+                        EF.Conditional(trackerNode.Position.X > position & trackerNode.Position.X < positionEnd
+                        , EF.Lerp(0, 0.6f, EF.Abs(positionCenter - trackerNode.Position.X) / (_itemWidth / 2))
+                        , 0.6f));            
+            }        
         }
 
 

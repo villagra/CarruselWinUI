@@ -12,7 +12,10 @@
 
     <Grid x:Name="pnlRoot" Padding="32 16">
         <s:CompositionShadow x:Name="shadow" BlurRadius="30" OffsetY="5">
-            <Image Source="{Binding}" Stretch="UniformToFill" />
+            <Grid>
+                <Image Source="{Binding}" Stretch="UniformToFill" />
+                <Grid x:Name="pnlDarkOverlay" Background="#212121" />
+            </Grid>
         </s:CompositionShadow>
     </Grid>
 </UserControl>

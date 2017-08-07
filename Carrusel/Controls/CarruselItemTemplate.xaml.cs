@@ -29,6 +29,14 @@ namespace Carrusel.Controls
             }
         }
 
+        public Visual OverlayPanel
+        {
+            get
+            {
+                return ElementCompositionPreview.GetElementVisual(pnlDarkOverlay);
+            }
+        }
+
         public CarruselItemTemplate()
         {
             this.InitializeComponent();
