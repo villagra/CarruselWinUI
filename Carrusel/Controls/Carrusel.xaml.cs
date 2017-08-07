@@ -200,6 +200,32 @@ namespace Carrusel.Controls
         {            
             _tracker.MaxPosition = new Vector3(itemsRendered.SelectedIndex * _itemWidth + _itemWidth);
             _tracker.MinPosition = new Vector3(itemsRendered.SelectedIndex * _itemWidth - _itemWidth);
+
+            ConfigureRestingPoints();
+        }
+
+        float p = 0.5f;
+        private void ConfigureRestingPoints()
+        {
+            // Setup a possible inertia endpoint (snap point) for the InteractionTracker's minimum position
+            var endpoint1 = InteractionTrackerInertiaRestingValue.Create(_compositor);
+
+            // Use this endpoint when the natural resting position of the interaction is less than the halfway point 
+            var trackerTarget = ExpressionValues.Target.CreateInteractionTrackerTarget();
+            endpoint1.SetCondition(EF.Abs(trackerTarget.NaturalRestingPosition.X - (itemsRendered.SelectedIndex * _itemWidth)) < p * _itemWidth);            
+            endpoint1.SetRestingValue(trackerTarget.MinPosition.X + _itemWidth);
+
+            // Setup a possible inertia endpoint (snap point) for the InteractionTracker's maximum position
+            var endpoint2 = InteractionTrackerInertiaRestingValue.Create(_compositor);
+            endpoint2.SetCondition(trackerTarget.NaturalRestingPosition.X - (itemsRendered.SelectedIndex * _itemWidth)  >= p * _itemWidth);            
+            endpoint2.SetRestingValue(trackerTarget.MaxPosition.X);
+
+            // Setup a possible inertia endpoint (snap point) for the InteractionTracker's maximum position
+            var endpoint3 = InteractionTrackerInertiaRestingValue.Create(_compositor);
+            endpoint3.SetCondition(trackerTarget.NaturalRestingPosition.X - (itemsRendered.SelectedIndex * _itemWidth)  <= -(p * _itemWidth));
+            endpoint3.SetRestingValue(trackerTarget.MinPosition.X);
+
+            _tracker.ConfigurePositionXInertiaModifiers(new InteractionTrackerInertiaModifier[] { endpoint1, endpoint2, endpoint3 });
         }
 
         private int GetLeft(int position)
@@ -296,111 +322,6 @@ namespace Carrusel.Controls
 
 
 
-        
-
-        private void InitializeLayoutOld()
-        {
-            center = CreatePlaceHolder();
-            center.DataContext = items.First();
-            pnlRoot.Children.Add(center);
-
-            right = CreatePlaceHolder();
-            right.DataContext = items[1];
-            right.Shadow.Opacity = 0;
-            pnlRoot.Children.Add(right);
-
-            left = CreatePlaceHolder();
-            left.DataContext = items[2];
-            left.Shadow.Opacity = 0;
-            pnlRoot.Children.Add(left);
-
-            var rightVisual = right.GetVisual();
-            rightVisual.Size = new System.Numerics.Vector2(_itemWidth, _itemHeight);
-            
-
-            var leftVisual = left.GetVisual();
-            leftVisual.Size = new System.Numerics.Vector2(_itemWidth, _itemHeight);
-            leftVisual.Offset = new System.Numerics.Vector3(-(float)right.Width, 0, 0);
-        }
-
-        private void InitializeAnimations2()
-        {
-            _props.InsertScalar("position", 0);
-            _props.InsertScalar("position1", 0);
-            _props.InsertScalar("progress", 0);
-            _props.InsertScalar("progressSigned", 0);
-            _props.InsertScalar("progressNeg", 0);
-            _props.InsertVector3("Translation", Vector3.Zero);
-
-
-            var trackerNode = _tracker.GetReference();
-            _props.StartAnimation("position", -trackerNode.Position.X);
-            _props.StartAnimation("position1", EF.Scale(-trackerNode.Position.X, (ScalarNode)1.25f));
-            _props.StartAnimation("progress", EF.Abs(trackerNode.Position.X) / trackerNode.MaxPosition.X);
-
-
-            _props.StartAnimation("progressSigned", trackerNode.Position.X / trackerNode.MaxPosition.X);
-            _props.StartAnimation("progressNeg", -trackerNode.Position.X / trackerNode.MaxPosition.X);
-
-
-            Canvas.SetZIndex(left, 1);
-            Canvas.SetZIndex(center, 2);
-            Canvas.SetZIndex(right, 1);
-
-            ElementCompositionPreview.SetIsTranslationEnabled(center, true);
-
-            center.GetVisual().CenterPoint = new Vector3((float)_itemWidth * .5f, (float)_itemHeight * .5f, 0f);
-            left.GetVisual().CenterPoint = new Vector3((float)_itemWidth * .5f, (float)_itemHeight * .5f, 0f);
-            right.GetVisual().CenterPoint = new Vector3((float)_itemWidth * .5f, (float)_itemHeight * .5f, 0f);
-
-            center.GetVisual().StartAnimation("offset.x", _props.GetReference().GetScalarProperty("position"));
-            left.GetVisual().StartAnimation("offset.x", -_itemWidth + _props.GetReference().GetScalarProperty("position"));
-            right.GetVisual().StartAnimation("offset.x", _itemWidth + _props.GetReference().GetScalarProperty("position"));
-
-            var propSetProgress = _props.GetReference().GetScalarProperty("progress");
-            center.GetVisual().StartAnimation("Scale", EF.Vector3(1, 1, 1) * EF.Lerp(1.2f, 1, propSetProgress));
-
-            var propSetProgressSigned = _props.GetReference().GetScalarProperty("progressSigned");
-            right.GetVisual().StartAnimation("Scale", EF.Vector3(1, 1, 1) * EF.Lerp(1, 1.2f, propSetProgressSigned));
-            left.GetVisual().StartAnimation("Scale", EF.Vector3(1, 1, 1) * EF.Lerp(1, 1.2f, _props.GetReference().GetScalarProperty("progressNeg")));
-
-            center.Shadow.StartAnimation("opacity", EF.Lerp(1, 0, _props.GetReference().GetScalarProperty("Progress")));
-        }
-
-        float p = 0.5f;
-        private void ConfigureRestingPoints()
-        {
-            // Setup a possible inertia endpoint (snap point) for the InteractionTracker's minimum position
-            var endpoint1 = InteractionTrackerInertiaRestingValue.Create(_compositor);
-
-            // Use this endpoint when the natural resting position of the interaction is less than the halfway point 
-            var trackerTarget = ExpressionValues.Target.CreateInteractionTrackerTarget();
-            endpoint1.SetCondition(EF.Abs(trackerTarget.NaturalRestingPosition.X) < p * _itemWidth);
-
-            // Set the result for this condition to make the InteractionTracker's y position the minimum y position
-            endpoint1.SetRestingValue(trackerTarget.MinPosition.X + _itemWidth);
-
-            // Setup a possible inertia endpoint (snap point) for the InteractionTracker's maximum position
-            var endpoint2 = InteractionTrackerInertiaRestingValue.Create(_compositor);
-
-            //Use this endpoint when the natural resting position of the interaction is more than the halfway point 
-            endpoint2.SetCondition(trackerTarget.NaturalRestingPosition.X >= p * _itemWidth);
-
-            //Set the result for this condition to make the InteractionTracker's y position the maximum y position
-            endpoint2.SetRestingValue(trackerTarget.MaxPosition.X);
-
-            // Setup a possible inertia endpoint (snap point) for the InteractionTracker's maximum position
-            var endpoint3 = InteractionTrackerInertiaRestingValue.Create(_compositor);
-
-            //Use this endpoint when the natural resting position of the interaction is more than the halfway point 
-            endpoint3.SetCondition(trackerTarget.NaturalRestingPosition.X <= -(p * _itemWidth));
-
-            //Set the result for this condition to make the InteractionTracker's y position the maximum y position
-            endpoint3.SetRestingValue(trackerTarget.MinPosition.X);
-
-            _tracker.ConfigurePositionXInertiaModifiers(new InteractionTrackerInertiaModifier[] { endpoint1, endpoint2, endpoint3 });
-        }
-
         private CarruselItemTemplate CreatePlaceHolder()
         {
             CarruselItemTemplate item = new CarruselItemTemplate();
@@ -416,30 +337,32 @@ namespace Carrusel.Controls
         #region IInteractionTrackerOwner
         public void CustomAnimationStateEntered(InteractionTracker sender, InteractionTrackerCustomAnimationStateEnteredArgs args)
         {
+            Debug.WriteLine("CustomAnimationStateEntered");
         }
 
         public void IdleStateEntered(InteractionTracker sender, InteractionTrackerIdleStateEnteredArgs args)
         {
+            Debug.WriteLine("IdleStateEntered");
         }
 
         public void InertiaStateEntered(InteractionTracker sender, InteractionTrackerInertiaStateEnteredArgs args)
         {
-
+            Debug.WriteLine("InertiaStateEntered");
         }
 
         public void InteractingStateEntered(InteractionTracker sender, InteractionTrackerInteractingStateEnteredArgs args)
         {
-
+            Debug.WriteLine("InteractingStateEntered");
         }
 
         public void RequestIgnored(InteractionTracker sender, InteractionTrackerRequestIgnoredArgs args)
         {
-
+            Debug.WriteLine("RequestIgnored");
         }
 
         public void ValuesChanged(InteractionTracker sender, InteractionTrackerValuesChangedArgs args)
         {
-            Debug.WriteLine("X position: " + args.Position.X);
+            //Debug.WriteLine("X position: " + args.Position.X);
         }
         #endregion
     }
