@@ -47,7 +47,6 @@ namespace Carrusel.Controls
             items.Add(new Movie() { Header = "SERIES | ITV 2", Title = "The big bang theory", Schedule = "Today at 10pm", Image = "ms-appx:///Assets/Tmp/t3.jpg" });
             items.Add(new Movie() { Header = "SERIES | E4", Title = "Two and a half men", Schedule = "Today at 1:30pm", Image = "ms-appx:///Assets/Tmp/t4.jpg" });
             items.Add(new Movie() { Header = "MOVIES | FILM 4", Title = "Spiderman", Schedule = "Today at 10pm", Image = "ms-appx:///Assets/Tmp/t5.jpg" });
-            items.Add(new Movie() { Header = "DOCUMENTARY | DMAX", Title = "World's toughest Trucker", Schedule = "Today at 10pm", Image = "ms-appx:///Assets/Tmp/t3.jpg" });
 
             this.Loaded += Carrusel_Loaded;
             bttnLeft.Tapped += BttnLeft_Tapped;
@@ -66,7 +65,7 @@ namespace Carrusel.Controls
         }
 
         int _itemWidth = 640;
-        int _itemHeight = 360;
+        int _itemHeight = 360;        
 
         CarruselItemTemplate left;
         CarruselItemTemplate center;
@@ -178,6 +177,8 @@ namespace Carrusel.Controls
             var newIndex = itemMoved.Item1;
 
             template.GetVisual().Offset = new System.Numerics.Vector3((float)right.Width * newIndex, 0, 0);
+            template.DataContext = GetItemForPosition(newIndex);
+
             ConfigureTemplateAnimations();
             ConfigureMinMax();
         }
@@ -189,6 +190,8 @@ namespace Carrusel.Controls
             var newIndex = itemMoved.Item1;
             
             template.GetVisual().Offset = new System.Numerics.Vector3((float)right.Width * newIndex, 0, 0);
+            template.DataContext = GetItemForPosition(newIndex);
+
             ConfigureTemplateAnimations();
             ConfigureMinMax();
         }
@@ -223,6 +226,19 @@ namespace Carrusel.Controls
             endpoint3.SetRestingValue(trackerTarget.MinPosition.X);
             
             _tracker.ConfigurePositionXInertiaModifiers(new InteractionTrackerInertiaModifier[] { endpoint1, endpoint2, endpoint3 });
+        }
+
+        private Movie GetItemForPosition(int position)
+        {
+            int newIndex = 0;
+            newIndex = position % items.Count;
+
+            if (newIndex < 0)
+            {
+                newIndex += items.Count;
+            }
+
+            return items[newIndex];
         }
 
         private int GetLeft(int position)
@@ -331,12 +347,10 @@ namespace Carrusel.Controls
             {
                 if (args.ModifiedRestingPosition.Value.X - (itemsRendered.SelectedIndex * _itemWidth) >= p * _itemWidth)
                 {
-                    Debug.WriteLine("Move right");
                     MoveRight();
                 }
                 else if (args.ModifiedRestingPosition.Value.X - (itemsRendered.SelectedIndex * _itemWidth) <= -(p * _itemWidth))
                 {
-                    Debug.WriteLine("Move right");
                     MoveLeft();
                 }
             }
