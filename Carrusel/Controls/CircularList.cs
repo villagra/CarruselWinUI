@@ -73,6 +73,8 @@ namespace Carrusel.Controls
 
         private void PrintAll()
         {
+            return;
+            
             Debug.WriteLine("Start collection dump");
             Debug.WriteLine($"Selected: {_selected}");
             foreach (var item in _items)

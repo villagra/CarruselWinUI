@@ -50,25 +50,7 @@ namespace Carrusel.Controls
             this.Loaded += Carrusel_Loaded;
             bttnLeft.Tapped += BttnLeft_Tapped;
             bttnRight.Tapped += BttnRight_Tapped;
-        }
-
-        private void BttnRight_Tapped2(object sender, TappedRoutedEventArgs e)
-        {
-            e.Handled = true;
-            _tracker.TryUpdatePositionWithAdditionalVelocity(new Vector3(1500f, 0f, 0f));
-        }
-
-        private void BttnLeft_Tapped2(object sender, TappedRoutedEventArgs e)
-        {
-            e.Handled = true;
-
-            var animation = _compositor.CreateVector3KeyFrameAnimation();
-            animation.InsertKeyFrame(1, new Vector3(0, 0, 0));
-            animation.Duration = TimeSpan.FromMilliseconds(333);
-            _tracker.TryUpdatePositionWithAnimation(animation);
-
-            //var value = _tracker.TryUpdatePositionWithAdditionalVelocity(new Vector3(-1500f, 0f, 0f));
-        }
+        }        
 
         private void Carrusel_Loaded(object sender, RoutedEventArgs e)
         {
@@ -162,13 +144,14 @@ namespace Carrusel.Controls
 
         private async void BttnLeft_Tapped(object sender, TappedRoutedEventArgs e)
         {
+            e.Handled = true;
             var itemMoved = itemsRendered.MoveLeft();
 
             var animation = _compositor.CreateVector3KeyFrameAnimation();
             animation.InsertKeyFrame(1, new Vector3(itemsRendered.SelectedIndex * _itemWidth, 0, 0));
             animation.Duration = TimeSpan.FromMilliseconds(333);            
             _tracker.TryUpdatePositionWithAnimation(animation);
-                        
+            
             var template = itemMoved.Item2;
             var newIndex = itemMoved.Item1;
 
@@ -180,17 +163,41 @@ namespace Carrusel.Controls
 
         private async void BttnRight_Tapped(object sender, TappedRoutedEventArgs e)
         {
+            e.Handled = true;
             var itemMoved = itemsRendered.MoveRight();
 
             var animation = _compositor.CreateVector3KeyFrameAnimation();
             animation.InsertKeyFrame(1, new Vector3(itemsRendered.SelectedIndex * _itemWidth, 0, 0));
             animation.Duration = TimeSpan.FromMilliseconds(333);
-            _tracker.TryUpdatePositionWithAnimation(animation);
-
+            _tracker.TryUpdatePositionWithAnimation(animation);            
+            
             var template = itemMoved.Item2;
             var newIndex = itemMoved.Item1;
 
-            await Task.Delay(333);
+            await Task.Delay(250);
+
+            template.GetVisual().Offset = new System.Numerics.Vector3((float)right.Width * newIndex, 0, 0);
+            ConfigureTemplateAnimations();
+            ConfigureMinMax();
+        }
+
+        private void MoveRight()
+        {
+            var itemMoved = itemsRendered.MoveRight();
+            var template = itemMoved.Item2;
+            var newIndex = itemMoved.Item1;
+
+            template.GetVisual().Offset = new System.Numerics.Vector3((float)right.Width * newIndex, 0, 0);
+            ConfigureTemplateAnimations();
+            ConfigureMinMax();
+        }
+
+        private void MoveLeft()
+        {
+            var itemMoved = itemsRendered.MoveLeft();
+            var template = itemMoved.Item2;
+            var newIndex = itemMoved.Item1;
+            
             template.GetVisual().Offset = new System.Numerics.Vector3((float)right.Width * newIndex, 0, 0);
             ConfigureTemplateAnimations();
             ConfigureMinMax();
@@ -224,7 +231,7 @@ namespace Carrusel.Controls
             var endpoint3 = InteractionTrackerInertiaRestingValue.Create(_compositor);
             endpoint3.SetCondition(trackerTarget.NaturalRestingPosition.X - (itemsRendered.SelectedIndex * _itemWidth)  <= -(p * _itemWidth));
             endpoint3.SetRestingValue(trackerTarget.MinPosition.X);
-
+            
             _tracker.ConfigurePositionXInertiaModifiers(new InteractionTrackerInertiaModifier[] { endpoint1, endpoint2, endpoint3 });
         }
 
@@ -279,7 +286,7 @@ namespace Carrusel.Controls
                 float position = (itemRendered.Item1 * _itemWidth) - _itemWidth / 2;
                 float positionEnd = (itemRendered.Item1 * _itemWidth) + _itemWidth/2;
 
-                Debug.WriteLine($"{itemRendered.Item1} position: {position} positionend: {positionEnd}");
+                //Debug.WriteLine($"{itemRendered.Item1} position: {position} positionend: {positionEnd}");
 
                 template.GetVisual()
                     .StartAnimation("Scale",
@@ -321,7 +328,6 @@ namespace Carrusel.Controls
         }
 
 
-
         private CarruselItemTemplate CreatePlaceHolder()
         {
             CarruselItemTemplate item = new CarruselItemTemplate();
@@ -334,36 +340,41 @@ namespace Carrusel.Controls
             return item;
         }
 
-        #region IInteractionTrackerOwner
-        public void CustomAnimationStateEntered(InteractionTracker sender, InteractionTrackerCustomAnimationStateEnteredArgs args)
-        {
-            Debug.WriteLine("CustomAnimationStateEntered");
-        }
 
-        public void IdleStateEntered(InteractionTracker sender, InteractionTrackerIdleStateEnteredArgs args)
-        {
-            Debug.WriteLine("IdleStateEntered");
-        }
+        #region IInteractionTrackerOwner
 
         public void InertiaStateEntered(InteractionTracker sender, InteractionTrackerInertiaStateEnteredArgs args)
         {
-            Debug.WriteLine("InertiaStateEntered");
+            if (args.ModifiedRestingPosition.HasValue)
+            {
+                if (args.ModifiedRestingPosition.Value.X - (itemsRendered.SelectedIndex * _itemWidth) >= p * _itemWidth)
+                {
+                    Debug.WriteLine("Move right");
+                    MoveRight();
+                }
+                else if (args.ModifiedRestingPosition.Value.X - (itemsRendered.SelectedIndex * _itemWidth) <= -(p * _itemWidth))
+                {
+                    Debug.WriteLine("Move right");
+                    MoveLeft();
+                }
+            }
         }
+
+        public void CustomAnimationStateEntered(InteractionTracker sender, InteractionTrackerCustomAnimationStateEnteredArgs args)
+        { }
+
+        public void IdleStateEntered(InteractionTracker sender, InteractionTrackerIdleStateEnteredArgs args)
+        { }
 
         public void InteractingStateEntered(InteractionTracker sender, InteractionTrackerInteractingStateEnteredArgs args)
-        {
-            Debug.WriteLine("InteractingStateEntered");
-        }
+        { }
 
         public void RequestIgnored(InteractionTracker sender, InteractionTrackerRequestIgnoredArgs args)
-        {
-            Debug.WriteLine("RequestIgnored");
-        }
+        { }
 
         public void ValuesChanged(InteractionTracker sender, InteractionTrackerValuesChangedArgs args)
-        {
-            //Debug.WriteLine("X position: " + args.Position.X);
-        }
+        { }
+
         #endregion
     }
 }
