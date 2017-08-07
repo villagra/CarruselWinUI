@@ -110,6 +110,7 @@
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Model\Movie.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -117,6 +118,13 @@
       <SubType>Designer</SubType>
     </AppxManifest>
     <None Include="Carrusel_TemporaryKey.pfx" />
+    <Content Include="Assets\Tmp\t1.jpg" />
+    <Content Include="Assets\Tmp\t2.jpg" />
+    <Content Include="Assets\Tmp\t3.jpg" />
+    <Content Include="Assets\Tmp\t4.jpg" />
+    <Content Include="Assets\Tmp\t5.jpg" />
+    <Content Include="Fonts\Bold.ttf" />
+    <Content Include="Fonts\Regular.ttf" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\Tmp\0.png" />
@@ -163,6 +171,11 @@
     <Page Include="MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\Styles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Page>
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,5 @@
-﻿using ExpressionBuilder;
+﻿using Carrusel.Model;
+using ExpressionBuilder;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -34,18 +35,18 @@ namespace Carrusel.Controls
         InteractionTracker _tracker;
         CompositionPropertySet _props;
 
-        List<string> items = new List<string>();
+        List<Movie> items = new List<Movie>();
 
         public Carrusel()
         {
             this.InitializeComponent();
 
-            items.Add("ms-appx:///Assets/Tmp/0.png");
-            items.Add("ms-appx:///Assets/Tmp/1.png");
-            items.Add("ms-appx:///Assets/Tmp/2.png");
-            items.Add("ms-appx:///Assets/Tmp/3.png");
-            items.Add("ms-appx:///Assets/Tmp/4.png");
-            items.Add("ms-appx:///Assets/Tmp/5.png");
+            items.Add(new Movie() { Header = "MOVIES | FILM 4", Title = "The Heat", Schedule = "Today at 10pm", Image = "ms-appx:///Assets/Tmp/t1.jpg" });
+            items.Add(new Movie() { Header = "SERIES | ITV 3", Title = "Family Guy", Schedule = "Today at 7pm", Image = "ms-appx:///Assets/Tmp/t2.jpg" });
+            items.Add(new Movie() { Header = "SERIES | ITV 2", Title = "The big bang theory", Schedule = "Today at 10pm", Image = "ms-appx:///Assets/Tmp/t3.jpg" });
+            items.Add(new Movie() { Header = "SERIES | E4", Title = "Two and a half men", Schedule = "Today at 1:30pm", Image = "ms-appx:///Assets/Tmp/t4.jpg" });
+            items.Add(new Movie() { Header = "MOVIES | FILM 4", Title = "Spiderman", Schedule = "Today at 10pm", Image = "ms-appx:///Assets/Tmp/t5.jpg" });
+            items.Add(new Movie() { Header = "DOCUMENTARY | DMAX", Title = "World's toughest Trucker", Schedule = "Today at 10pm", Image = "ms-appx:///Assets/Tmp/t3.jpg" });
 
             this.Loaded += Carrusel_Loaded;
             bttnLeft.Tapped += BttnLeft_Tapped;
@@ -273,8 +274,21 @@ namespace Carrusel.Controls
                         EF.Vector3(1, 1, 1) * EF.Conditional(trackerNode.Position.X > position & trackerNode.Position.X < positionEnd
                         , EF.Lerp(1.2f, 1, EF.Abs(positionCenter - trackerNode.Position.X) / (_itemWidth / 2))
                         , 1));
+                               
+
+                template.BackgroundPanel
+                    .StartAnimation("Scale",
+                        EF.Vector3(1, 1, 1) * EF.Conditional(trackerNode.Position.X > position & trackerNode.Position.X < positionEnd
+                        , EF.Lerp(1.1f, 1, EF.Abs(positionCenter - trackerNode.Position.X) / (_itemWidth / 2))
+                        , 1));
 
                 template.Shadow
+                    .StartAnimation("opacity",
+                        EF.Conditional(trackerNode.Position.X > position & trackerNode.Position.X < positionEnd
+                        , EF.Lerp(1, 0, EF.Abs(positionCenter - trackerNode.Position.X) / (_itemWidth / 2))
+                        , 0));
+
+                template.ContentPanel
                     .StartAnimation("opacity",
                         EF.Conditional(trackerNode.Position.X > position & trackerNode.Position.X < positionEnd
                         , EF.Lerp(1, 0, EF.Abs(positionCenter - trackerNode.Position.X) / (_itemWidth / 2))
@@ -297,6 +311,7 @@ namespace Carrusel.Controls
             item.Height = _itemHeight;
 
             item.GetVisual().CenterPoint = new Vector3((float)_itemWidth * .5f, (float)_itemHeight * .5f, 0f);
+            item.BackgroundPanel.CenterPoint = new Vector3((float)_itemWidth * .5f, (float)_itemHeight * .5f, 0f);
 
             return item;
         }

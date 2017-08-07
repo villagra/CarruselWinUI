@@ -37,9 +37,31 @@ namespace Carrusel.Controls
             }
         }
 
+        public Visual ContentPanel
+        {
+            get
+            {
+                return ElementCompositionPreview.GetElementVisual(pnlContent);
+            }
+        }
+
+        public Visual BackgroundPanel
+        {
+            get
+            {
+                return ElementCompositionPreview.GetElementVisual(pnlBackground);
+            }
+        }
+
         public CarruselItemTemplate()
         {
             this.InitializeComponent();
+            this.Loaded += CarruselItemTemplate_Loaded;
+        }
+
+        private void CarruselItemTemplate_Loaded(object sender, RoutedEventArgs e)
+        {
+            pnlBackground.Clip = new RectangleGeometry() { Rect = new Rect(new Point(0, 0), new Point(576, 328)) };
         }
 
         public Visual GetVisual()
