@@ -34,6 +34,7 @@ namespace Carrusel.Controls
 
         InteractionTracker _tracker;
         CompositionPropertySet _props;
+        CubicBezierEasingFunction _cubicBezierEasingFunction;
 
         List<Movie> items = new List<Movie>();
 
@@ -119,6 +120,9 @@ namespace Carrusel.Controls
 
             _tracker = InteractionTracker.CreateWithOwner(_compositor, this);
 
+            //_cubicBezierEasingFunction = _compositor.CreateCubicBezierEasingFunction(new Vector2(0.8f, 1.0f), new Vector2(0.0f, 1.0f));
+            _cubicBezierEasingFunction = _compositor.CreateCubicBezierEasingFunction(new Vector2(.17f, .67f), new Vector2(1f, 1f));
+
             _containerVisual.Size = new Vector2((float)pnlRoot.ActualWidth, (float)pnlRoot.ActualHeight);
             _props = _compositor.CreatePropertySet();
 
@@ -143,14 +147,16 @@ namespace Carrusel.Controls
             };
         }
 
+        TimeSpan animationDuration = TimeSpan.FromMilliseconds(300);
+
         private void BttnLeft_Tapped(object sender, TappedRoutedEventArgs e)
         {
             e.Handled = true;
             MoveLeft();
 
             var animation = _compositor.CreateVector3KeyFrameAnimation();
-            animation.InsertKeyFrame(1, new Vector3(itemsRendered.SelectedIndex * _itemWidth, 0, 0));
-            animation.Duration = TimeSpan.FromMilliseconds(333);            
+            animation.InsertKeyFrame(1, new Vector3(itemsRendered.SelectedIndex * _itemWidth, 0, 0), _cubicBezierEasingFunction);
+            animation.Duration = animationDuration;
             _tracker.TryUpdatePositionWithAnimation(animation);            
         }
 
@@ -160,8 +166,8 @@ namespace Carrusel.Controls
             MoveRight();
 
             var animation = _compositor.CreateVector3KeyFrameAnimation();
-            animation.InsertKeyFrame(1, new Vector3(itemsRendered.SelectedIndex * _itemWidth, 0, 0));
-            animation.Duration = TimeSpan.FromMilliseconds(333);
+            animation.InsertKeyFrame(1, new Vector3(itemsRendered.SelectedIndex * _itemWidth, 0, 0), _cubicBezierEasingFunction);
+            animation.Duration = animationDuration;
             _tracker.TryUpdatePositionWithAnimation(animation);            
         }
 
